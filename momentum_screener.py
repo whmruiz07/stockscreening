@@ -6,7 +6,12 @@ import yfinance as yf
 # ===== Helper Functions =====
 def get_stock_data(tickers, period="6mo"):
     data = yf.download(tickers, period=period)
-    return data["Adj Close"]
+
+    # Handle MultiIndex columns (multiple tickers) or single ticker
+    if isinstance(data.columns, pd.MultiIndex):
+        return data["Adj Close"]
+    else:
+        return data.to_frame(name="Adj Close")
 
 def calculate_momentum(prices):
     returns_20d = prices.pct_change(20).iloc[-1] * 100
